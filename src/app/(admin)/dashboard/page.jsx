@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation"; // Import the router
+import { useRouter } from "next/navigation";
 import {
   Layers,
   MessageSquare,
-  Briefcase,
+  FileText, // Changed icon for Resume
   Image as ImageIcon,
   LogOut,
 } from "lucide-react";
@@ -12,16 +12,13 @@ import { useAuth } from "../../../context/AuthContext";
 import DashboardCard from "../../../components/admin/DashboardCard";
 
 export default function DashboardPage() {
-  const { logout, user } = useAuth(); // Get user from context
-  const router = useRouter(); // Initialize router
+  const { logout, user } = useAuth();
+  const router = useRouter();
 
-  // Helper function to check login before navigating
   const secureNavigate = (path) => {
     if (!user) {
-      // If no user is found, redirect to login
       router.push("/login");
     } else {
-      // If user exists, navigate normally
       router.push(path);
     }
   };
@@ -42,10 +39,10 @@ export default function DashboardPage() {
       color: "bg-pink-600",
     },
     {
-      title: "Experience",
-      desc: "Manage work history and achievements.",
-      icon: <Briefcase size={24} />,
-      link: "/dashboard/experience",
+      title: "Resume HQ", // Updated Title
+      desc: "Manage Edu, Exp, Skills & Certs.", // Updated Description
+      icon: <FileText size={24} />, // Updated Icon
+      link: "/dashboard/resume", // Updated Link
       color: "bg-red-600",
     },
     {
@@ -75,14 +72,12 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Modules Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {modules.map((m) => (
             <DashboardCard key={m.title} {...m} />
           ))}
         </div>
 
-        {/* Quick Actions */}
         <div className="bg-[#1a1c26] p-8 rounded-2xl border border-zinc-800/50">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -96,10 +91,10 @@ export default function DashboardPage() {
               + New Project
             </button>
             <button
-              onClick={() => secureNavigate("/dashboard/testimonials")}
-              className="bg-pink-600 hover:bg-pink-500 px-6 py-3 rounded-xl text-xs font-bold transition-all active:scale-95"
+              onClick={() => secureNavigate("/dashboard/resume/experience")}
+              className="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-xl text-xs font-bold transition-all active:scale-95"
             >
-              + New Testimonial
+              + New Work Log
             </button>
             <button
               onClick={() => router.push("/")}
