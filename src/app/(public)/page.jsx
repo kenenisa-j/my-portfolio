@@ -7,8 +7,9 @@ import About from "../../components/portfolio/About";
 import Projects from "../../components/portfolio/Projects";
 import Skills from "../../components/portfolio/Skills";
 import Deliverables from "../../components/portfolio/Deliverables";
-import Testimonials from "../../components/portfolio/Testimonials"; // Optional, if you want to include it on the homepage
-import Dualcore from "../../components/portfolio/foundation/DualCore";
+import Testimonials from "../../components/portfolio/Testimonials";
+import ResumeHeader from "../../components/portfolio/ResumeHeader";
+
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +46,8 @@ export default function HomePage() {
       <Projects />
       <Deliverables />
       <Testimonials />
-      <Dualcore />
+      <ResumeHeader />
+
       {/* PROJECTS SECTION */}
 
       {/* Footer Placeholder for later */}
