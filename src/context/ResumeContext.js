@@ -6,17 +6,12 @@ import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 const ResumeContext = createContext();
 
 export const ResumeProvider = ({ children }) => {
-  // 1. THE MAIN SWITCH STATE (Foundation vs Execution)
   const [activePillar, setActivePillar] = useState("FOUNDATION");
-
-  // 2. DATA STATES
   const [education, setEducation] = useState([]);
   const [experience, setExperience] = useState([]);
   const [skills, setSkills] = useState([]);
 
-  // 3. REAL-TIME FIREBASE LISTENERS
   useEffect(() => {
-    // Listener for Education (Foundation Pillar)
     const qEdu = query(
       collection(db, "education"),
       orderBy("createdAt", "asc"),
@@ -25,7 +20,6 @@ export const ResumeProvider = ({ children }) => {
       setEducation(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
 
-    // Listener for Experience (Execution Pillar)
     const qExp = query(collection(db, "experience"), orderBy("order", "asc"));
     const unsubExp = onSnapshot(qExp, (snapshot) => {
       setExperience(
@@ -33,7 +27,6 @@ export const ResumeProvider = ({ children }) => {
       );
     });
 
-    // Listener for Skills (Execution Pillar)
     const qSkills = query(
       collection(db, "skills"),
       orderBy("percentage", "desc"),

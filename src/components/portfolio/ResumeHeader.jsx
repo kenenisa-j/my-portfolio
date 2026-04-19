@@ -1,15 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "../../firebase/config";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
-import DualTimeline from "./foundation/DualCore";
+import DualTimeline from "./foundation/DualTimeline";
+// Added your local Linguistics component import
+import Linguistics from "./Linguistics";
 
 export default function ResumeHeader() {
   const [activeTab, setActiveTab] = useState("education");
+  const [credentials, setCredentials] = useState([]);
+
+  useEffect(() => {
+    const fetchCredentials = async () => {
+      try {
+        const q = query(
+          collection(db, "credentials"),
+          orderBy("createdAt", "desc"),
+        );
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCredentials(data);
+      } catch (err) {
+        console.error("Failed to load credentials:", err);
+      }
+    };
+    fetchCredentials();
+  }, []);
 
   return (
-    /* REDUCED PADDING: Changed py-16 to py-8 to bring the whole section up */
     <div className="max-w-6xl mx-auto px-6 py-8">
-      {/* 1. Refined Title Section - REDUCED MARGIN: mb-12 to mb-8 */}
+      {/* Title Section */}
       <div className="mb-8 text-center lg:text-left">
         <motion.p
           initial={{ opacity: 0, x: -10 }}
@@ -24,34 +48,24 @@ export default function ResumeHeader() {
         <div className="h-1 w-20 bg-gradient-to-r from-fuchsia-600 to-purple-600 mt-6 mx-auto lg:ml-1 rounded-full opacity-80" />
       </div>
 
-      {/* 2. Compact Cyber-Toggle - REDUCED MARGIN: mb-16 to mb-10 */}
+      {/* Cyber-Toggle */}
       <div className="flex justify-center mb-10">
         <div className="inline-flex p-1 bg-zinc-900/40 border border-zinc-800/50 rounded-xl backdrop-blur-xl shadow-2xl">
           {["education", "professional"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              /* CENTERED & BALANCED: Fixed min-width ensures both buttons look identical */
-              className={`relative flex items-center justify-center min-w-[200px] md:min-w-[240px] px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 rounded-lg ${
-                activeTab === tab
-                  ? "text-white"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
+              className={`relative flex items-center justify-center min-w-[200px] md:min-w-[240px] px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 rounded-lg ${activeTab === tab ? "text-white" : "text-zinc-500 hover:text-zinc-300"}`}
             >
-              <span className="relative z-10 text-center w-full">
+              <span className="relative z-10">
                 {tab === "education"
                   ? "Education & Credentials"
                   : "Skills & Experience"}
               </span>
-
               {activeTab === tab && (
                 <motion.div
                   layoutId="activeTabGlow"
-                  className={`absolute inset-0 rounded-lg -z-0 ${
-                    tab === "education"
-                      ? "bg-fuchsia-600 shadow-[0_0_20px_rgba(217,70,239,0.4)]"
-                      : "bg-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-                  }`}
+                  className={`absolute inset-0 rounded-lg -z-0 ${tab === "education" ? "bg-fuchsia-600 shadow-[0_0_20px_rgba(217,70,239,0.4)]" : "bg-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.4)]"}`}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -60,7 +74,7 @@ export default function ResumeHeader() {
         </div>
       </div>
 
-      {/* 3. Content Stream - REMOVED min-h-[600px] to let cards sit naturally closer */}
+      {/* Content Stream */}
       <div className="relative">
         <AnimatePresence mode="wait">
           {activeTab === "education" ? (
@@ -71,7 +85,6 @@ export default function ResumeHeader() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              {/* Foundation Header - REDUCED MARGIN: mb-12 to mb-8 */}
               <div className="flex items-center gap-4 mb-8">
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500 whitespace-nowrap">
                   01. Foundation // Credentials
@@ -79,23 +92,16 @@ export default function ResumeHeader() {
                 <div className="h-px flex-1 bg-gradient-to-r from-zinc-800 to-transparent" />
               </div>
 
-              <DualTimeline />
+              {/* The Timeline Component */}
+              <DualTimeline credentials={credentials} />
 
-              {/* Linguistics Card - REDUCED TOP MARGIN: mt-12 to mt-8 */}
-              <div className="mt-8 group p-8 border border-zinc-900 bg-zinc-950/50 rounded-[2rem] hover:border-fuchsia-500/30 transition-colors">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-2 w-2 rounded-full bg-fuchsia-500 animate-pulse" />
-                  <span className="text-[10px] uppercase tracking-widest text-fuchsia-500 font-black">
-                    Linguistics_Module
-                  </span>
-                </div>
-                <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
-                  Processing high-level communication protocols and
-                  multi-language infrastructure for global deployment.
-                </p>
+              {/* Render your imported Linguistics component here */}
+              <div className="mt-12">
+                <Linguistics />
               </div>
             </motion.section>
           ) : (
+            /* Professional Section */
             <motion.section
               key="prof-section"
               initial={{ opacity: 0, y: 10 }}
@@ -109,7 +115,6 @@ export default function ResumeHeader() {
                 </h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-zinc-800 to-transparent" />
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-8 border border-zinc-900 bg-zinc-950/50 rounded-[2rem]">
                   <span className="text-[10px] uppercase tracking-widest text-purple-500 font-black block mb-4">
@@ -120,7 +125,6 @@ export default function ResumeHeader() {
                     <span className="text-white">AI Automation Expertise.</span>
                   </p>
                 </div>
-
                 <div className="p-8 border border-zinc-900 bg-zinc-950/50 rounded-[2rem] border-dashed flex items-center justify-center min-h-[160px]">
                   <span className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium">
                     Awaiting_Experience_Data...

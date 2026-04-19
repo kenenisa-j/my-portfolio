@@ -38,7 +38,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+    <main className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* HERO SECTION - Now includes your animated roles and photo */}
       <Hero />
       <About />

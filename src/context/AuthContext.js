@@ -14,6 +14,12 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user || null);
       setLoading(false);
+
+      if (user) {
+        Cookies.set("firebase-auth-token", user.uid, { path: "/" });
+      } else {
+        Cookies.remove("firebase-auth-token", { path: "/" });
+      }
     });
     return () => unsubscribe();
   }, []);
