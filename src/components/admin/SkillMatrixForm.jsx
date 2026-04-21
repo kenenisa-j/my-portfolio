@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
-import { db } from "../../firebase/config"; // Ensure this path is correct for your project
-import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+// Define strict categories to match your dashboard
+const CATEGORIES = ["Programming Languages", "Frameworks"];
 
 export default function SkillMatrixForm() {
   const [skill, setSkill] = useState({
     name: "",
-    category: "Web Development",
+    category: CATEGORIES[0], // Default to first category
     proficiency: 50,
   });
   const [loading, setLoading] = useState(false);
@@ -19,10 +22,10 @@ export default function SkillMatrixForm() {
         name: skill.name,
         category: skill.category,
         proficiency: parseInt(skill.proficiency),
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       });
       alert("Skill added successfully!");
-      setSkill({ name: "", category: "Web Development", proficiency: 50 });
+      setSkill({ name: "", category: CATEGORIES[0], proficiency: 50 });
     } catch (err) {
       console.error("Error adding skill: ", err);
       alert("Failed to add skill.");
@@ -47,11 +50,11 @@ export default function SkillMatrixForm() {
             value={skill.name}
             onChange={(e) => setSkill({ ...skill, name: e.target.value })}
             className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-white focus:border-fuchsia-500 outline-none transition-all"
-            placeholder="e.g. React.js"
+            placeholder="e.g. TypeScript"
           />
         </div>
 
-        {/* Category Select */}
+        {/* Category Select (Strictly limited to 2) */}
         <div>
           <label className="block text-xs font-mono uppercase text-zinc-400 mb-2">
             Category
@@ -61,10 +64,11 @@ export default function SkillMatrixForm() {
             onChange={(e) => setSkill({ ...skill, category: e.target.value })}
             className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-white focus:border-fuchsia-500 outline-none"
           >
-            <option>Web Development</option>
-            <option>AI / Machine Learning</option>
-            <option>Infrastructure</option>
-            <option>Data Science</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         </div>
 

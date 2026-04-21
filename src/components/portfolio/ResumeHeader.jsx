@@ -4,8 +4,10 @@ import { db } from "../../firebase/config";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 import DualTimeline from "./foundation/DualTimeline";
-// Added your local Linguistics component import
 import Linguistics from "./Linguistics";
+import QuantifiedSkills from "./execution/QuantifiedSkills";
+import DualCoreSystem from "./execution/DualCoreSystem";
+import SystemSummary from "./SystemSummary"; // 1. Import the new component
 
 export default function ResumeHeader() {
   const [activeTab, setActiveTab] = useState("education");
@@ -19,11 +21,9 @@ export default function ResumeHeader() {
           orderBy("createdAt", "desc"),
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCredentials(data);
+        setCredentials(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+        );
       } catch (err) {
         console.error("Failed to load credentials:", err);
       }
@@ -83,7 +83,6 @@ export default function ResumeHeader() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
             >
               <div className="flex items-center gap-4 mb-8">
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500 whitespace-nowrap">
@@ -91,45 +90,29 @@ export default function ResumeHeader() {
                 </h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-zinc-800 to-transparent" />
               </div>
-
-              {/* The Timeline Component */}
               <DualTimeline credentials={credentials} />
-
-              {/* Render your imported Linguistics component here */}
               <div className="mt-12">
                 <Linguistics />
               </div>
             </motion.section>
           ) : (
-            /* Professional Section */
             <motion.section
               key="prof-section"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
             >
-              <div className="flex items-center gap-4 mb-8">
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-purple-500 whitespace-nowrap">
-                  02. Execution // Skills
-                </h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-zinc-800 to-transparent" />
+              <div className="mb-12">
+                <QuantifiedSkills />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-8 border border-zinc-900 bg-zinc-950/50 rounded-[2rem]">
-                  <span className="text-[10px] uppercase tracking-widest text-purple-500 font-black block mb-4">
-                    What_I_Bring
-                  </span>
-                  <p className="text-zinc-300 text-lg font-semibold leading-snug">
-                    Full-Stack Engineering & <br />
-                    <span className="text-white">AI Automation Expertise.</span>
-                  </p>
-                </div>
-                <div className="p-8 border border-zinc-900 bg-zinc-950/50 rounded-[2rem] border-dashed flex items-center justify-center min-h-[160px]">
-                  <span className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium">
-                    Awaiting_Experience_Data...
-                  </span>
-                </div>
+
+              <div className="mt-8">
+                <DualCoreSystem />
+              </div>
+
+              {/* 2. Added SystemSummary below Experience & Hobby */}
+              <div className="mt-20">
+                <SystemSummary />
               </div>
             </motion.section>
           )}

@@ -1,7 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { db } from "../../firebase/config"; // Ensure this path is correct based on your move
+import { db } from "../../firebase/config";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+
+// Components
+import Navbar from "../../components/Navbar";
 import Hero from "../../components/portfolio/Hero";
 import About from "../../components/portfolio/About";
 import Projects from "../../components/portfolio/Projects";
@@ -9,6 +12,8 @@ import Skills from "../../components/portfolio/Skills";
 import Deliverables from "../../components/portfolio/Deliverables";
 import Testimonials from "../../components/portfolio/Testimonials";
 import ResumeHeader from "../../components/portfolio/ResumeHeader";
+import ContactForm from "../../components/portfolio/ContactForm";
+import Footer from "../../components/portfolio/Footer";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -39,22 +44,43 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-black text-white overflow-x-hidden">
-      {/* HERO SECTION - Now includes your animated roles and photo */}
-      <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <Deliverables />
-      <Testimonials />
-      <ResumeHeader />
+      <Navbar />
 
-      {/* PROJECTS SECTION */}
+      {/* EACH SECTION MUST HAVE THE ID THAT NAVBAR LOOKS FOR */}
+      <section id="home">
+        <Hero />
+      </section>
 
-      {/* Footer Placeholder for later */}
-      <footer className="py-10 text-center text-zinc-600 text-sm border-t border-zinc-900">
-        © {new Date().getFullYear()} Kenenisa Jaleto. Built with Next.js &
-        Firebase.
-      </footer>
+      <section id="about">
+        <About />
+      </section>
+
+      <section id="skills">
+        <Skills />
+      </section>
+
+      <section id="projects">
+        <Projects projects={projects} loading={loading} />
+      </section>
+
+      <section id="services">
+        <Deliverables />
+      </section>
+
+      {/* Optional: Add section IDs here if you want them in the Navbar too */}
+      <section id="testimonials">
+        <Testimonials />
+      </section>
+
+      <section id="resume">
+        <ResumeHeader />
+      </section>
+
+      <section id="contact">
+        <ContactForm />
+      </section>
+
+      <Footer />
     </main>
   );
 }
