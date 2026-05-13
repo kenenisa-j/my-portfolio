@@ -88,13 +88,6 @@ export default function Navbar() {
           <Download size={14} className="text-fuchsia-500" />
         </a>
 
-        <a
-          href="/dashboard"
-          className="text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-fuchsia-500 transition-colors"
-        >
-          Dashboard
-        </a>
-
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}

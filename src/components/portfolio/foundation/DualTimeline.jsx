@@ -1,116 +1,164 @@
 "use client";
+
 import { useResume } from "../../../context/ResumeContext";
 import { motion } from "framer-motion";
-import { ExternalLink, GraduationCap, Award } from "lucide-react";
+import { GraduationCap, Award, ArrowUpRight } from "lucide-react";
 
 export default function DualTimeline({ credentials = [] }) {
   const { education } = useResume();
 
-  const Card = ({ children, icon: Icon }) => (
+  const Card = ({ children, variant = "education" }) => (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -5 }}
-      className="relative w-full md:w-[480px] group"
+      viewport={{ once: true, amount: 0.25 }}
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.35 }}
+      className="relative w-full md:w-[470px] group"
     >
-      {/* Permanent Glow Effect */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-2xl blur opacity-30"></div>
+      <div
+        className={`absolute -inset-[1px] rounded-[28px] blur-lg opacity-20 group-hover:opacity-40 transition duration-500 ${
+          variant === "education"
+            ? "bg-gradient-to-r from-fuchsia-500 to-purple-500"
+            : "bg-gradient-to-r from-purple-500 to-violet-500"
+        }`}
+      />
 
-      {/* Card Container */}
-      <div className="relative bg-[#050505] border border-zinc-800 rounded-2xl p-8 flex flex-col gap-4 h-full min-h-[320px]">
+      <div className="relative h-full rounded-[28px] border border-zinc-800/80 bg-[#070707]/90 backdrop-blur-xl p-7 overflow-hidden transition-all duration-300 group-hover:border-zinc-700">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
         {children}
       </div>
     </motion.div>
   );
 
   return (
-    <div className="relative w-full py-24 px-4 overflow-hidden">
-      {/* Center Timeline Spine */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gradient-to-b from-fuchsia-500/30 via-purple-500/30 to-transparent" />
+    <section className="relative w-full py-16 overflow-hidden">
+      {/* TOP HEADER SECTION */}
+      <div className="max-w-[1000px] mx-auto px-6 mb-20 flex flex-col md:flex-row justify-between items-start gap-10">
+        {/* Education Header */}
+        <div className="group/title cursor-default">
+          <span className="text-[11px] uppercase tracking-[0.4em] text-zinc-500 font-bold block mb-1">
+            2012 - 2027
+          </span>
+          <h2 className="text-5xl font-black italic uppercase text-white tracking-tighter">
+            Education
+          </h2>
+          {/* Animated Hover Underline */}
+          <div className="h-[2px] w-0 bg-fuchsia-600 group-hover/title:w-full transition-all duration-500 mt-2" />
+        </div>
 
-      <div className="flex flex-col gap-20">
+        {/* Certifications Header */}
+        <div className="group/title cursor-default md:text-right flex flex-col md:items-end">
+          <span className="text-[11px] uppercase tracking-[0.4em] text-zinc-500 font-bold block mb-1">
+            2023 - Present
+          </span>
+          <h2 className="text-5xl font-black italic uppercase text-white tracking-tighter">
+            Certifications
+          </h2>
+          {/* Animated Hover Underline */}
+          <div className="h-[2px] w-0 bg-purple-600 group-hover/title:w-full transition-all duration-500 mt-2" />
+        </div>
+      </div>
+
+      {/* Timeline spine */}
+      <div className="hidden md:block absolute left-1/2 top-52 bottom-0 w-px bg-gradient-to-b from-fuchsia-500/40 via-purple-500/20 to-transparent" />
+
+      <div className="flex flex-col gap-12">
         {education.map((edu, i) => {
           const cred = credentials[i];
+
           return (
             <div
               key={edu.id || i}
-              className="relative flex flex-col md:flex-row justify-between items-start w-full"
+              className="relative flex flex-col md:flex-row justify-between items-stretch gap-8"
             >
-              {/* EDUCATION SIDE */}
-              <Card icon={GraduationCap}>
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 shrink-0">
-                    <GraduationCap className="text-fuchsia-400" size={20} />
+              {/* EDUCATION CARD */}
+              <Card variant="education">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-2xl border border-fuchsia-500/20 bg-fuchsia-500/10">
+                      <GraduationCap size={22} className="text-fuchsia-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      {edu.degree}
+                    </h3>
                   </div>
                   {edu.isOngoing && (
-                    <span className="text-[10px] bg-fuchsia-500/10 text-fuchsia-400 px-3 py-1 rounded-full border border-fuchsia-500/20 uppercase font-bold tracking-wider">
+                    <span className="px-3 py-1 rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 text-[10px] uppercase tracking-wider font-bold text-fuchsia-300">
                       Ongoing
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-1">
-                  {edu.degree}
-                </h3>
-                <p className="text-[11px] text-fuchsia-400 font-mono uppercase tracking-widest mb-6">
-                  {edu.institution} • {edu.yearStart} — {edu.yearEnd}
-                </p>
+                <div className="mb-5">
+                  <p className="text-fuchsia-400 font-semibold">
+                    {edu.institution}
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-1">
+                    {edu.yearStart} — {edu.yearEnd}
+                  </p>
+                </div>
 
-                <div className="mt-auto border-t border-zinc-800 pt-6">
-                  <p className="text-sm text-zinc-400 leading-relaxed break-words">
-                    <span className="text-zinc-200 font-semibold block mb-1">
-                      Coursework:
-                    </span>
+                <div className="border-t border-zinc-800 pt-5">
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-3">
+                    Focus Areas
+                  </p>
+                  <p className="text-sm leading-7 text-zinc-300">
                     {edu.coursework}
                   </p>
                 </div>
               </Card>
 
-              {/* CENTER ANCHOR DOT */}
-              <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#0a0a0d] border-2 border-purple-500 z-10 shadow-[0_0_20px_rgba(168,85,247,0.4)]" />
+              {/* TIMELINE DOT */}
+              <div className="hidden md:flex absolute left-1/2 top-12 -translate-x-1/2 z-20">
+                <div className="w-4 h-4 rounded-full border-2 border-fuchsia-500 bg-[#090909] shadow-[0_0_30px_rgba(217,70,239,0.4)]" />
+              </div>
 
-              {/* CREDENTIAL SIDE */}
+              {/* CREDENTIAL CARD */}
               {cred ? (
-                <Card icon={Award}>
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 shrink-0">
-                      <Award className="text-purple-400" size={20} />
+                <Card variant="credential">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-2xl border border-purple-500/20 bg-purple-500/10 shrink-0">
+                      <Award size={22} className="text-purple-400" />
                     </div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      {cred.title}
+                    </h3>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-1">
-                    {cred.title}
-                  </h3>
-                  <p className="text-[11px] text-purple-400 font-mono uppercase tracking-widest mb-6">
-                    {cred.issuer} • {cred.date}
-                  </p>
+                  <div className="mb-5">
+                    <p className="text-purple-400 font-semibold">
+                      {cred.issuer}
+                    </p>
+                    <p className="text-sm text-zinc-500 mt-1">{cred.date}</p>
+                  </div>
 
-                  <div className="mt-auto border-t border-zinc-800 pt-6">
-                    <p className="text-sm text-zinc-400 leading-relaxed break-words">
+                  <div className="border-t border-zinc-800 pt-5">
+                    <p className="text-sm leading-7 text-zinc-300">
                       {cred.description}
                     </p>
                     {cred.url && (
-                      <div className="mt-8 flex justify-end">
+                      <div className="mt-6">
                         <a
                           href={cred.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[10px] text-purple-400 hover:text-white font-bold uppercase tracking-widest transition-colors"
+                          className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-white transition-colors"
                         >
-                          Verify Certification
+                          Verify Credential
+                          <ArrowUpRight size={14} />
                         </a>
                       </div>
                     )}
                   </div>
                 </Card>
               ) : (
-                <div className="w-[480px]" />
+                <div className="hidden md:block w-[470px]" />
               )}
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

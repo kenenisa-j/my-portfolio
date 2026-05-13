@@ -34,6 +34,13 @@ export default function ResumeGateway() {
       link: "/dashboard/resume/credentials",
       color: "bg-fuchsia-600",
     },
+    {
+      title: "Tech Stack",
+      desc: "Manage technologies and mastery.",
+      icon: <Cpu size={24} />,
+      link: "/dashboard/resume/tech",
+      color: "bg-fuchsia-600",
+    },
   ];
 
   return (
