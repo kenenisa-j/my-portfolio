@@ -32,6 +32,7 @@ const ExternalIcon = () => (
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef(null);
 
   const mouseX = useMotionValue(0);
@@ -56,11 +57,11 @@ export default function Projects() {
   }, []);
 
   const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
+    // If the user is hovering over a card or if on mobile viewport, bypass slider animation frames
+    if (!containerRef.current || isHovered || window.innerWidth < 768) return;
     const { innerWidth } = window;
     const xPercentage = e.clientX / innerWidth;
 
-    // Updated cardWidth for calculation to match new visual size
     const cardWidth = 420;
     const totalContentWidth = projects.length * cardWidth;
     const overflow = totalContentWidth - innerWidth + 150;
@@ -74,44 +75,55 @@ export default function Projects() {
 
   return (
     <section
-      className="bg-black py-20 min-h-screen overflow-hidden flex flex-col justify-center"
+      className="bg-black py-20 min-h-screen overflow-x-hidden md:overflow-hidden flex flex-col justify-center"
       onMouseMove={handleMouseMove}
     >
-      <div className="max-w-7xl mx-auto px-10 mb-14 pointer-events-none">
-        <h2 className="text-6xl md:text-8xl font-black italic uppercase text-white tracking-tighter leading-none">
-          SELECTED <span className="text-fuchsia-600">LABS</span>
+      <div className="max-w-7xl mx-auto px-6 md:px-10 mb-14 pointer-events-none">
+        <h2 className="text-5xl md:text-8xl font-black italic uppercase text-white tracking-tighter leading-none">
+          FEATURED <span className="text-fuchsia-600">PROJECTS</span>
         </h2>
         <div className="flex items-center gap-3 mt-4">
           <div className="h-[1px] w-12 bg-fuchsia-600" />
           <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold">
-            Hover to navigate
+            {window.innerWidth < 768 ? "Swipe to explore" : "Hover to navigate"}
           </p>
         </div>
       </div>
 
-      <div className="relative">
+      {/* Outer block changes to a native side-swipe flow for mobile screens */}
+      <div className="relative w-full overflow-x-auto no-scrollbar md:overflow-visible px-6 md:px-0">
         <motion.div
           ref={containerRef}
-          style={{ x: smoothX }}
-          className="flex gap-8 px-[10%]"
+          style={{ x: window.innerWidth >= 768 ? smoothX : 0 }}
+          className="flex gap-6 md:gap-8 md:px-[10%] pb-6 md:pb-0"
         >
           {projects.map((p) => {
             const techs = p.techStack?.split(",") || [];
+
+            // FIXED: Safe parsing to keep compressed base64 strings whole
+            const rawImage = p.images || "";
+            const resolvedImageSrc =
+              typeof rawImage === "string" && rawImage.startsWith("data:image")
+                ? rawImage // Keeps entire Base64 payload intact
+                : typeof rawImage === "string" && rawImage.includes(",")
+                  ? rawImage.split(",")[0] // Legacy structural split for explicit cloud storage URLs
+                  : rawImage.trim() !== ""
+                    ? rawImage
+                    : "/api/placeholder/400/300";
+
             return (
               <div
                 key={p.id}
-                // SIZE CHANGED HERE: w-[340px] md:w-[380px]
-                className="relative flex-shrink-0 w-[340px] md:w-[380px] group"
+                className="relative flex-shrink-0 w-[290px] sm:w-[340px] md:w-[380px] group"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
               >
                 <div className="absolute inset-0 rounded-[2.2rem] border border-zinc-900 transition-all duration-500 group-hover:border-fuchsia-600/40 group-hover:shadow-[0_0_30px_rgba(192,38,211,0.1)]" />
 
                 <div className="relative bg-[#090909] rounded-[2.15rem] p-6 h-full flex flex-col z-10 border border-white/5">
-                  {/* IMAGE SIZE CHANGED HERE: aspect-[16/10] */}
                   <div className="relative aspect-[16/10] bg-[#121212] rounded-[1.6rem] overflow-hidden mb-6">
                     <img
-                      src={
-                        p.images?.split(",")[0] || "/api/placeholder/400/300"
-                      }
+                      src={resolvedImageSrc}
                       className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                       alt={p.title}
                     />
@@ -120,13 +132,14 @@ export default function Projects() {
 
                   <div className="flex flex-col flex-grow px-1">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white text-xl font-black italic uppercase tracking-tighter group-hover:text-fuchsia-500 transition-colors">
+                      <h3 className="text-white text-lg md:text-xl font-black italic uppercase tracking-tighter group-hover:text-fuchsia-500 transition-colors">
                         {p.title}
                       </h3>
                       <div className="flex gap-3">
                         <a
                           href={p.github || "#"}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
                         >
                           <GithubIcon />
@@ -134,6 +147,7 @@ export default function Projects() {
                         <a
                           href={p.liveDemo || "#"}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
                         >
                           <ExternalIcon />

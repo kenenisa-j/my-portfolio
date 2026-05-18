@@ -91,25 +91,38 @@ export default function Navbar() {
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="lg:hidden text-zinc-400"
+          className="lg:hidden text-zinc-400 focus:outline-none z-[110]"
         >
           {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay Drawer */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-[90] bg-black flex flex-col justify-center items-center gap-8 lg:hidden">
+        <div className="fixed top-[88px] right-6 z-[100] w-64 max-h-[calc(100vh-120px)] bg-zinc-950/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col p-8 gap-5 overflow-y-auto lg:hidden">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
-              className="text-2xl font-black uppercase text-white hover:text-fuchsia-500 transition-colors"
+              className={`text-sm font-black uppercase tracking-wider pb-2 border-b border-zinc-900/50 transition-colors ${
+                activeSection === link.name.toLowerCase()
+                  ? "text-fuchsia-500"
+                  : "text-zinc-400 hover:text-white"
+              }`}
             >
               {link.name}
             </a>
           ))}
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center justify-between mt-2 bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-800 text-xs font-bold uppercase tracking-widest text-white hover:border-fuchsia-500/50 transition-all"
+          >
+            <span>CV</span>
+            <Download size={14} className="text-fuchsia-500" />
+          </a>
         </div>
       )}
     </nav>

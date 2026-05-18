@@ -9,8 +9,6 @@ import {
 } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { FiCalendar, FiTarget, FiBriefcase, FiCpu } from "react-icons/fi";
-// Fixed the firestore import path from your error screenshot
-import { doc, onSnapshot } from "firebase/firestore";
 
 const Counter = ({ to, duration = 1.5 }) => {
   const [count, setCount] = useState(0);
@@ -35,32 +33,39 @@ const Counter = ({ to, duration = 1.5 }) => {
 
 const journeyData = [
   {
-    year: "2023",
-    title: "The Foundation",
+    year: "2022",
+    title: "Web Discovery",
     description:
-      "Joined Addis Ababa University. Mastered core programming logic and hardware-software synergy.",
-    tags: ["AAU", "Python", "Logic"],
+      "First discovered web development during high school and started learning the fundamentals of HTML while exploring how websites are built and structured.",
+    tags: ["HTML", "Web Basics", "Learning"],
+  },
+  {
+    year: "2023",
+    title: "Programming Journey",
+    description:
+      "Joined Addis Ababa University and started exploring programming with Python while learning problem solving, programming logic, and the fundamentals of software and computer systems.",
+    tags: ["Python", "Programming", "Logic"],
   },
   {
     year: "2024",
-    title: "Web Development Focus",
+    title: "Web Development",
     description:
-      "Built frontend projects and secure backend systems using React and Firebase.",
-    tags: ["Next.js", "Firebase", "APIs"],
+      "Focused on web development using HTML, CSS, and JavaScript while building interactive projects and learning modern frontend technologies and tools.",
+    tags: ["HTML", "CSS", "JavaScript"],
   },
   {
     year: "2025",
-    title: "AI and Machine Learning",
+    title: "AI Exploration",
     description:
-      "Studied core ML concepts and built projects using real datasets and automation.",
-    tags: ["ML", "Data Analysis", "Automation"],
+      "Started focusing on Artificial Intelligence, Machine Learning, and automation while exploring intelligent systems, AI-powered applications, and modern technologies.",
+    tags: ["AI", "Machine Learning", "Automation"],
   },
   {
     year: "2026",
-    title: "Present Work",
+    title: "Scalable Systems",
     description:
-      "Currently building AI-integrated systems and production-level applications.",
-    tags: ["RSA", "AI Integration", "Full-Stack"],
+      "Currently building scalable full-stack applications, AI-integrated platforms, and learning next-generation technologies focused on intelligent automation and modern software systems.",
+    tags: ["Full-Stack", "AI Systems", "Next-Gen"],
     current: true,
   },
 ];
@@ -114,40 +119,42 @@ export default function AboutSection() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="space-y-10"
+            className="flex flex-col gap-8"
           >
             <div className="flex items-center gap-4">
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
-                2. About <span className="text-fuchsia-600">Me</span>
+              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic bg-gradient-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent">
+                ABOUT ME
               </h2>
-              <div className="h-[2px] flex-grow bg-zinc-900" />
             </div>
 
-            <div className="max-w-4xl space-y-8">
-              <p className="text-2xl md:text-3xl font-bold leading-tight">
-                I am{" "}
-                <span className="text-fuchsia-600 font-black">
-                  Kenenisa Jaleto
-                </span>
-                , a Full Stack Developer and aspiring AI Engineer focused on
-                building scalable web applications and intelligent systems.
+            <div className="max-w-5xl text-zinc-400 text-lg md:text-xl space-y-6 leading-relaxed">
+              <p>
+                I am a Full-Stack Developer, AI Engineer, and Machine Learning
+                enthusiast focused on building intelligent systems, scalable web
+                applications, and modern digital experiences powered by
+                artificial intelligence.
               </p>
-
-              <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">
-                I am a third-year Electrical and Computer Engineering student at
-                Addis Ababa University, where I bridge the gap between hardware
-                and software to solve complex problems. My expertise lies in
-                Full Stack Development and AI systems, utilizing Generative AI
-                and Machine Learning to build production-ready software
-                architecture.
+              <p>
+                I am passionate about creating technology that combines clean
+                design, performance, automation, and real-world impact through
+                advanced software engineering, AI systems, and Machine Learning.
               </p>
-
-              <div className="p-6 bg-zinc-950 border-l-4 border-fuchsia-600">
-                <p className="text-white font-bold italic text-xl md:text-2xl">
-                  "My goal is to engineer intelligent systems that solve
-                  industrial and national problems."
-                </p>
-              </div>
+              <p>
+                My expertise includes Full-Stack Development, Machine Learning,
+                backend architecture, and modern frontend technologies using
+                React, Next.js, Node.js, Python, Firebase, and AI APIs.
+              </p>
+              <p>
+                I continuously expand my knowledge in artificial intelligence,
+                intelligent automation, modern software architecture, and
+                next-generation technologies to build systems designed for the
+                future.
+              </p>
+              <p>
+                I am not building ordinary projects. I am building
+                future-focused digital systems designed to push innovation
+                beyond limits.
+              </p>
             </div>
           </motion.div>
         </div>
@@ -157,7 +164,7 @@ export default function AboutSection() {
           <div className="flex items-center gap-3 mb-12">
             <div className="w-1 h-6 bg-gradient-to-b from-fuchsia-500 to-purple-600 rounded-full" />
             <h3 className="text-xl font-bold tracking-tight uppercase">
-              My Journey in Numbers
+              MY JOURNEY IN NUMBERS
             </h3>
           </div>
 
@@ -195,19 +202,20 @@ export default function AboutSection() {
           </div>
 
           <div className="relative flex flex-col items-center">
-            {/* Timeline Progress Line */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-full bg-zinc-900" />
+            {/* Timeline Progress Line: Left aligned on mobile, centered on desktop */}
+            <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-[2px] h-full bg-zinc-900" />
             <motion.div
               style={{ scaleY }}
-              className="absolute left-1/2 -translate-x-1/2 w-[2px] h-full bg-fuchsia-600 origin-top"
+              className="absolute left-4 md:left-1/2 -translate-x-1/2 w-[2px] h-full bg-fuchsia-600 origin-top"
             />
 
             {journeyData.map((item, idx) => (
               <motion.div
                 key={idx}
-                className={`relative w-full flex flex-col md:flex-row items-center mb-28 ${idx % 2 === 0 ? "md:flex-row-reverse" : ""}`}
+                className={`relative w-full flex flex-col md:flex-row items-start md:items-center mb-28 ${idx % 2 === 0 ? "md:flex-row-reverse" : ""}`}
               >
-                <div className="w-full md:w-1/2 px-4 md:px-16">
+                {/* Content block: left padded on mobile to shift away from left line */}
+                <div className="w-full md:w-1/2 pl-12 pr-4 md:px-16">
                   <div className="p-10 border border-zinc-900 bg-zinc-950/40 rounded-xl group hover:border-fuchsia-600/20 transition-all">
                     <span className="text-fuchsia-500 font-black text-xs tracking-[0.4em] mb-4 block uppercase">
                       [{item.year}]
@@ -230,8 +238,8 @@ export default function AboutSection() {
                     </div>
                   </div>
                 </div>
-                {/* Timeline Dot */}
-                <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-black border-2 border-fuchsia-600 rotate-45 z-10" />
+                {/* Timeline Dot: Shifted to match the line position responsibly */}
+                <div className="absolute left-4 md:left-1/2 -translate-x-1/2 top-12 md:top-auto w-4 h-4 bg-black border-2 border-fuchsia-600 rotate-45 z-10" />
               </motion.div>
             ))}
           </div>

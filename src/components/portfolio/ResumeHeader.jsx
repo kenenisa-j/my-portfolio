@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { db } from "../../firebase/config";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,37 +40,37 @@ export default function ResumeHeader() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-12 overflow-x-hidden">
       {/* HERO */}
-      <div className="mb-10 text-center lg:text-left">
+      <div className="mb-8 md:mb-14 text-center md:text-left flex flex-col items-center md:items-start">
         <motion.p
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-[10px] text-fuchsia-500 font-bold uppercase tracking-[0.5em] mb-3"
+          className="text-[9px] md:text-[10px] text-fuchsia-500 font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] mb-3"
         >
           Full Stack Developer • AI & ML Engineer
         </motion.p>
 
-        <h1 className="text-6xl md:text-7xl font-black italic tracking-tighter uppercase text-white leading-none">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black italic tracking-tighter uppercase text-white leading-none">
           My Resume
         </h1>
 
-        <p className="text-zinc-400 mt-4 max-w-2xl">
+        <p className="text-zinc-400 mt-4 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed px-2 md:px-0">
           A quick recap of my technical foundation, professional journey, and
           the lifestyle that fuels my drive for innovation.
         </p>
 
-        <div className="h-1 w-20 bg-gradient-to-r from-fuchsia-600 to-purple-600 mt-6 rounded-full" />
+        <div className="h-1 w-16 md:w-20 bg-gradient-to-r from-fuchsia-600 to-purple-600 mt-5 md:mt-6 rounded-full" />
       </div>
 
-      {/* TABS */}
-      <div className="flex justify-center mb-12">
-        <div className="inline-flex p-1 bg-zinc-900/40 border border-zinc-800 rounded-xl backdrop-blur-xl">
+      {/* TABS - Optimized for clean touch-targets on Mobile */}
+      <div className="flex justify-center mb-10 md:mb-16 px-1">
+        <div className="flex w-full sm:w-auto p-1 bg-zinc-900/40 border border-zinc-800/80 rounded-xl backdrop-blur-xl gap-1">
           {["education", "experience"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative min-w-[220px] px-6 py-3 rounded-lg text-[10px] uppercase tracking-[0.2em] font-black transition-all ${
+              className={`relative flex-1 sm:min-w-[180px] md:min-w-[220px] px-3 md:px-6 py-3 rounded-lg text-[9px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-black transition-all ${
                 activeTab === tab
                   ? "text-white"
                   : "text-zinc-500 hover:text-zinc-300"
@@ -98,36 +99,43 @@ export default function ResumeHeader() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
+            className="flex flex-col gap-12 md:gap-20"
           >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
+            {/* Main Timelines Section (Education & Certifications stacked naturally) */}
+            <div className="w-full token-timeline-wrapper">
+              <DualTimeline credentials={credentials} />
             </div>
 
-            <DualTimeline credentials={credentials} />
-
-            {/* Languages */}
-            <div className="mt-16">
+            {/* Languages Layout Separation */}
+            <div className="w-full border-t border-zinc-900/50 pt-10 md:pt-16">
               <Linguistics />
             </div>
 
             {/* CTA */}
-            <div className="mt-20 flex flex-col items-center justify-center text-center border border-zinc-800 rounded-[2rem] bg-zinc-950/60 p-8 backdrop-blur-xl">
-              <h3 className="text-2xl font-black text-white uppercase">
+            <div className="mt-10 md:mt-14 flex flex-col items-center justify-center text-center border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] bg-zinc-950/60 p-6 md:p-10 backdrop-blur-xl">
+              <h3 className="text-lg md:text-2xl font-black text-white uppercase tracking-tight">
                 Want To Know More?
               </h3>
 
-              <p className="text-zinc-400 mt-2 max-w-md">
+              <p className="text-zinc-500 mt-2 max-w-md text-xs md:text-sm px-2">
                 Explore my projects and experience in more depth.
               </p>
 
-              <div className="flex gap-3 mt-6">
-                <button className="px-5 py-2.5 rounded-xl bg-fuchsia-600 text-sm font-semibold text-white hover:bg-fuchsia-500 transition">
+              <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto px-2 sm:px-0">
+                <a
+                  href="/assets/resume.pdf"
+                  download="Kenenisa_Jaleto_Resume.pdf"
+                  className="text-center px-6 py-3 rounded-xl bg-fuchsia-600 text-xs md:text-sm font-bold uppercase tracking-wider text-white hover:bg-fuchsia-500 transition-all shadow-lg shadow-fuchsia-600/10 active:scale-[0.98]"
+                >
                   Download CV
-                </button>
+                </a>
 
-                <button className="px-5 py-2.5 rounded-xl border border-zinc-700 text-sm text-zinc-200 hover:border-fuchsia-500 transition">
+                <Link
+                  href="/contact"
+                  className="text-center px-6 py-3 rounded-xl border border-zinc-800 bg-zinc-900/20 text-xs md:text-sm font-bold uppercase tracking-wider text-zinc-200 hover:border-fuchsia-500/50 hover:text-white transition-all active:scale-[0.98]"
+                >
                   Contact Me
-                </button>
+                </Link>
               </div>
             </div>
           </motion.section>
@@ -138,41 +146,44 @@ export default function ResumeHeader() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
+            className="flex flex-col gap-12 md:gap-20"
           >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
+            {/* Core Experience Tracking */}
+            <div className="w-full token-core-wrapper">
+              <DualCoreSystem />
             </div>
 
-            <DualCoreSystem />
-
-            {/* System Summary (Lifestyle) */}
-            <div className="mt-20">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="flex-1 h-px bg-gradient-to-r from-zinc-800 to-transparent" />
-              </div>
-
+            {/* System Summary / Beyond Coding */}
+            <div className="w-full border-t border-zinc-900/50 pt-10 md:pt-16">
               <SystemSummary />
             </div>
 
             {/* CTA */}
-            <div className="mt-20 flex flex-col items-center text-center border border-zinc-800 rounded-[2rem] bg-zinc-950/60 p-8 backdrop-blur-xl">
-              <h3 className="text-2xl font-black text-white uppercase">
+            <div className="mt-10 md:mt-14 flex flex-col items-center justify-center text-center border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] bg-zinc-950/60 p-6 md:p-10 backdrop-blur-xl">
+              <h3 className="text-lg md:text-2xl font-black text-white uppercase tracking-tight">
                 Let’s Build Something Great
               </h3>
 
-              <p className="text-zinc-400 mt-2 max-w-md">
+              <p className="text-zinc-500 mt-2 max-w-md text-xs md:text-sm px-2">
                 Open to internships, freelance work, and development
                 opportunities.
               </p>
 
-              <div className="flex gap-3 mt-6">
-                <button className="px-5 py-2.5 rounded-xl bg-fuchsia-600 text-sm font-semibold text-white hover:bg-fuchsia-500 transition">
+              <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto px-2 sm:px-0">
+                <a
+                  href="/assets/resume.pdf"
+                  download="Kenenisa_Jaleto_Resume.pdf"
+                  className="text-center px-6 py-3 rounded-xl bg-fuchsia-600 text-xs md:text-sm font-bold uppercase tracking-wider text-white hover:bg-fuchsia-500 transition-all shadow-lg shadow-fuchsia-600/10 active:scale-[0.98]"
+                >
                   Download CV
-                </button>
+                </a>
 
-                <button className="px-5 py-2.5 rounded-xl border border-zinc-700 text-sm text-zinc-200 hover:border-fuchsia-500 transition">
+                <Link
+                  href="/contact"
+                  className="text-center px-6 py-3 rounded-xl border border-zinc-800 bg-zinc-900/20 text-xs md:text-sm font-bold uppercase tracking-wider text-zinc-200 hover:border-fuchsia-500/50 hover:text-white transition-all active:scale-[0.98]"
+                >
                   Contact Me
-                </button>
+                </Link>
               </div>
             </div>
           </motion.section>

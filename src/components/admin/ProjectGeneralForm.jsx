@@ -19,6 +19,7 @@ export default function ProjectForm({ onSuccess, editData }) {
     liveDemo: "",
     images: "",
   });
+  const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
 
   // 1. POPULATE FORM IF EDITING
@@ -33,8 +34,8 @@ export default function ProjectForm({ onSuccess, editData }) {
         liveDemo: editData.liveDemo || "",
         images: editData.images || "",
       });
+      setImagePreview(editData.images || "");
     } else {
-      // Clear form if editData is removed (switching back to "New Entry")
       setFormData({
         title: "",
         slug: "",
@@ -44,6 +45,7 @@ export default function ProjectForm({ onSuccess, editData }) {
         liveDemo: "",
         images: "",
       });
+      setImagePreview("");
     }
   }, [editData]);
 
@@ -54,7 +56,6 @@ export default function ProjectForm({ onSuccess, editData }) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
 
-    // Only auto-generate slug if we aren't editing (preserves SEO/URLs)
     if (editData) {
       setFormData({ ...formData, title });
     } else {
@@ -62,10 +63,59 @@ export default function ProjectForm({ onSuccess, editData }) {
     }
   };
 
+  // Converts local file into an optimized, compressed Base64 text string
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          // Target scale thresholds for standard 16:10 web previews
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compresses canvas down to an optimized jpeg text payload (Quality: 70%)
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+
+          setImagePreview(compressedBase64);
+          setFormData((prev) => ({ ...prev, images: compressedBase64 }));
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (!formData.images && !editData) {
+        throw new Error("Please select an image file.");
+      }
+
       if (editData?.id) {
         // 2. UPDATE EXISTING RECORD
         const docRef = doc(db, "projects", editData.id);
@@ -198,15 +248,26 @@ export default function ProjectForm({ onSuccess, editData }) {
 
       <div className="flex flex-col gap-2">
         <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold ml-2">
-          Image URL
+          Project Thumbnail Image
         </label>
-        <input
-          type="text"
-          className="p-4 bg-black border border-zinc-800 rounded-xl focus:border-green-500 outline-none transition text-sm text-white"
-          value={formData.images}
-          onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-          required
-        />
+        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-black border border-zinc-800 rounded-xl">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer w-full sm:w-auto"
+            required={!editData}
+          />
+          {imagePreview && (
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-zinc-800 bg-zinc-900 shrink-0">
+              <img
+                src={imagePreview}
+                alt="Upload preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <button
