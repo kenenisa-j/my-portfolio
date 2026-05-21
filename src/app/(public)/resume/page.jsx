@@ -1,4 +1,4 @@
-import ResumeHeader from "@/components/portfolio/ResumeHeader";
+import ResumeHeader from "../../../components/portfolio/ResumeHeader";
 
 export default function PublicResumePage() {
   return (
