@@ -179,7 +179,7 @@ export default function ResumeHeader() {
                 </a>
 
                 <Link
-                  href="/contact"
+                  href="/#contact"
                   className="text-center px-6 py-3 rounded-xl border border-zinc-800 bg-zinc-900/20 text-xs md:text-sm font-bold uppercase tracking-wider text-zinc-200 hover:border-fuchsia-500/50 hover:text-white transition-all active:scale-[0.98]"
                 >
                   Contact Me
