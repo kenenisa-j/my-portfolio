@@ -32,11 +32,11 @@ const ExternalIcon = () => (
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
+  const [activeHoveredId, setActiveHoveredId] = useState(null);
   const containerRef = useRef(null);
 
   const mouseX = useMotionValue(0);
-  const smoothX = useSpring(mouseX, { damping: 45, stiffness: 70 });
+  const smoothX = useSpring(mouseX, { damping: 55, stiffness: 45, mass: 1.2 });
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -57,14 +57,14 @@ export default function Projects() {
   }, []);
 
   const handleMouseMove = (e) => {
-    // If the user is hovering over a card or if on mobile viewport, bypass slider animation frames
-    if (!containerRef.current || isHovered || window.innerWidth < 768) return;
+    if (!containerRef.current || activeHoveredId || window.innerWidth < 768)
+      return;
     const { innerWidth } = window;
     const xPercentage = e.clientX / innerWidth;
 
-    const cardWidth = 420;
+    const cardWidth = 440;
     const totalContentWidth = projects.length * cardWidth;
-    const overflow = totalContentWidth - innerWidth + 150;
+    const overflow = totalContentWidth - innerWidth + 200;
 
     if (overflow > 0) {
       mouseX.set(-(xPercentage * overflow));
@@ -85,12 +85,11 @@ export default function Projects() {
         <div className="flex items-center gap-3 mt-4">
           <div className="h-[1px] w-12 bg-fuchsia-600" />
           <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold">
-            {window.innerWidth < 768 ? "Swipe to explore" : "Hover to navigate"}
+            {window.innerWidth < 768 ? "Swipe to explore" : ""}
           </p>
         </div>
       </div>
 
-      {/* Outer block changes to a native side-swipe flow for mobile screens */}
       <div className="relative w-full overflow-x-auto no-scrollbar md:overflow-visible px-6 md:px-0">
         <motion.div
           ref={containerRef}
@@ -100,13 +99,12 @@ export default function Projects() {
           {projects.map((p) => {
             const techs = p.techStack?.split(",") || [];
 
-            // FIXED: Safe parsing to keep compressed base64 strings whole
             const rawImage = p.images || "";
             const resolvedImageSrc =
               typeof rawImage === "string" && rawImage.startsWith("data:image")
-                ? rawImage // Keeps entire Base64 payload intact
+                ? rawImage
                 : typeof rawImage === "string" && rawImage.includes(",")
-                  ? rawImage.split(",")[0] // Legacy structural split for explicit cloud storage URLs
+                  ? rawImage.split(",")[0]
                   : rawImage.trim() !== ""
                     ? rawImage
                     : "/api/placeholder/400/300";
@@ -114,21 +112,39 @@ export default function Projects() {
             return (
               <div
                 key={p.id}
-                className="relative flex-shrink-0 w-[290px] sm:w-[340px] md:w-[380px] group"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                className="relative flex-shrink-0 w-[300px] sm:w-[360px] md:w-[410px] group"
+                onMouseEnter={() => setActiveHoveredId(p.id)}
+                onMouseLeave={() => setActiveHoveredId(null)}
               >
-                <div className="absolute inset-0 rounded-[2.2rem] border border-zinc-900 transition-all duration-500 group-hover:border-fuchsia-600/40 group-hover:shadow-[0_0_30px_rgba(192,38,211,0.1)]" />
+                <div className="absolute inset-0 rounded-[2.2rem] border border-zinc-900 transition-all duration-500 group-hover:border-fuchsia-600/40 group-hover:shadow-[0_0_40px_rgba(192,38,211,0.12)]" />
 
                 <div className="relative bg-[#090909] rounded-[2.15rem] p-6 h-full flex flex-col z-10 border border-white/5">
-                  <div className="relative aspect-[16/10] bg-[#121212] rounded-[1.6rem] overflow-hidden mb-6">
+                  {/* WRAPPED IMAGE IN ANCHOR TAG LINK TO DIRECT LIVE DEPLOYMENT VIEW */}
+                  <a
+                    href={p.liveDemo || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative block aspect-[16/9.5] w-full bg-[#121212] rounded-[1.6rem] overflow-hidden mb-6 border border-white/5 cursor-pointer"
+                  >
                     <img
                       src={resolvedImageSrc}
-                      className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
                       alt={p.title}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-fuchsia-900/20 to-transparent" />
-                  </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+
+                    {/* CENTERED LIVE VIEW INDICATOR - VISIBLE ONLY ON HOVER */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 bg-black/75 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <span className="text-[9px] font-black uppercase text-zinc-300 tracking-widest whitespace-nowrap">
+                        Live Deploy
+                      </span>
+                    </div>
+                  </a>
 
                   <div className="flex flex-col flex-grow px-1">
                     <div className="flex items-center justify-between mb-3">
@@ -140,6 +156,7 @@ export default function Projects() {
                           href={p.github || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
                         >
                           <GithubIcon />
@@ -148,6 +165,7 @@ export default function Projects() {
                           href={p.liveDemo || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
                         >
                           <ExternalIcon />
@@ -172,6 +190,7 @@ export default function Projects() {
 
                     <Link
                       href={`/projects/${p.slug}`}
+                      onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-3 text-white/30 text-[9px] font-black uppercase tracking-[0.3em] hover:text-white transition-all pt-4 border-t border-white/5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-600" />

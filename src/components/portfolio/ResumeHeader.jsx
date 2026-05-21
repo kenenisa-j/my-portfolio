@@ -123,7 +123,7 @@ export default function ResumeHeader() {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto px-2 sm:px-0">
                 <a
-                  href="/assets/resume.pdf"
+                  href="/assets/Kenenisa_Jaleto_cv .pdf"
                   download="Kenenisa_Jaleto_Resume.pdf"
                   className="text-center px-6 py-3 rounded-xl bg-fuchsia-600 text-xs md:text-sm font-bold uppercase tracking-wider text-white hover:bg-fuchsia-500 transition-all shadow-lg shadow-fuchsia-600/10 active:scale-[0.98]"
                 >
@@ -131,7 +131,7 @@ export default function ResumeHeader() {
                 </a>
 
                 <Link
-                  href="/contact"
+                  href="/#contact"
                   className="text-center px-6 py-3 rounded-xl border border-zinc-800 bg-zinc-900/20 text-xs md:text-sm font-bold uppercase tracking-wider text-zinc-200 hover:border-fuchsia-500/50 hover:text-white transition-all active:scale-[0.98]"
                 >
                   Contact Me
@@ -171,7 +171,7 @@ export default function ResumeHeader() {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto px-2 sm:px-0">
                 <a
-                  href="/assets/resume.pdf"
+                  href="/assets/Kenenisa_Jaleto_cv .pdf"
                   download="Kenenisa_Jaleto_Resume.pdf"
                   className="text-center px-6 py-3 rounded-xl bg-fuchsia-600 text-xs md:text-sm font-bold uppercase tracking-wider text-white hover:bg-fuchsia-500 transition-all shadow-lg shadow-fuchsia-600/10 active:scale-[0.98]"
                 >

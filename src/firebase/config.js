@@ -2,7 +2,7 @@
 // console.log(process.env.NEXT_PUBLIC_FIREBASE_API_KEY); // Commented out for security
 
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
@@ -20,7 +20,11 @@ const firebaseConfig = {
 let firebase_app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const db = getFirestore(firebase_app);
+// UPDATED: Forced long-polling to bypass WebSocket handshake timeouts/blocks on local networks
+export const db = initializeFirestore(firebase_app, {
+  experimentalForceLongPolling: true,
+});
+
 export const auth = getAuth(firebase_app);
 export const storage = getStorage(firebase_app);
 

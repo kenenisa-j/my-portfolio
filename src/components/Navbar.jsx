@@ -78,7 +78,7 @@ export default function Navbar() {
       {/* RIGHT: Resume Button + Dashboard */}
       <div className="flex items-center gap-6">
         <a
-          href="/resume.pdf"
+          href="/Kenenisa_Jaleto_cv .pdf"
           target="_blank"
           className="hidden lg:flex items-center gap-2 bg-zinc-900 px-5 py-2 rounded-lg border border-zinc-800 hover:border-fuchsia-500 transition-all"
         >
@@ -115,7 +115,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="/resume.pdf"
+            href="/Kenenisa_Jaleto_cv .pdf"
             target="_blank"
             onClick={() => setIsMenuOpen(false)}
             className="flex items-center justify-between mt-2 bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-800 text-xs font-bold uppercase tracking-widest text-white hover:border-fuchsia-500/50 transition-all"

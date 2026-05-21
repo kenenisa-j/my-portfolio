@@ -123,22 +123,22 @@ export default function Skills() {
   }, []);
 
   const categories = [
-    { label: "Frontend Systems", key: "Frontend", dir: "to-right", spd: 22 },
+    { label: "Frontend ", key: "Frontend", dir: "to-right", spd: 22 },
     {
-      label: "Backend Infrastructure",
+      label: "Backend ",
       key: "Backend",
       dir: "to-left",
       spd: 28,
     },
     {
-      label: "Database Architecture",
+      label: "Database ",
       key: "Database",
       dir: "to-right",
       spd: 24,
     },
 
-    { label: "AI & Engineering", key: "AI", dir: "to-left", spd: 32 },
-    { label: "Developer Arsenal", key: "Tools", dir: "to-right", spd: 30 },
+    { label: "AI & ML Engineering", key: "AI", dir: "to-left", spd: 32 },
+    { label: "Developer Tools", key: "Tools", dir: "to-right", spd: 30 },
   ];
 
   return (
