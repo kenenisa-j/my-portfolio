@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { db } from "../../firebase/config";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
@@ -13,38 +13,38 @@ const GithubIcon = () => (
 );
 
 const ExternalIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    height="18"
-    width="18"
-  >
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" height="18" width="18">
     <circle cx="12" cy="12" r="10" />
     <line x1="2" y1="12" x2="22" y2="12" />
     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
   </svg>
 );
 
+const ChevronLeft = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" height="20" width="20">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const ChevronRight = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" height="20" width="20">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeHoveredId, setActiveHoveredId] = useState(null);
-  const containerRef = useRef(null);
-
-  const mouseX = useMotionValue(0);
-  const smoothX = useSpring(mouseX, { damping: 55, stiffness: 45, mass: 1.2 });
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef(null);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const q = query(
-          collection(db, "projects"),
-          orderBy("createdAt", "desc"),
-        );
+        const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
         setProjects(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       } catch (err) {
@@ -56,49 +56,115 @@ export default function Projects() {
     fetchProjects();
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (!containerRef.current || activeHoveredId || window.innerWidth < 768)
-      return;
-    const { innerWidth } = window;
-    const xPercentage = e.clientX / innerWidth;
+  /* sync dot indicator to scroll position */
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const cardWidth = el.firstElementChild?.offsetWidth || 420;
+      const gap = 32;
+      const i = Math.round(el.scrollLeft / (cardWidth + gap));
+      setActiveIndex(i);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [projects]);
 
-    const cardWidth = 440;
-    const totalContentWidth = projects.length * cardWidth;
-    const overflow = totalContentWidth - innerWidth + 200;
+  const scrollTo = (i) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.firstElementChild?.offsetWidth || 420;
+    const gap = 32;
+    el.scrollTo({ left: i * (cardWidth + gap), behavior: "smooth" });
+  };
 
-    if (overflow > 0) {
-      mouseX.set(-(xPercentage * overflow));
-    }
+  const prev = () => scrollTo(Math.max(0, activeIndex - 1));
+  const next = () => scrollTo(Math.min(projects.length - 1, activeIndex + 1));
+
+  /* drag-to-scroll */
+  const onPointerDown = (e) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragScrollLeft.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = "grabbing";
+  };
+  const onPointerMove = (e) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStartX.current;
+    scrollRef.current.scrollLeft = dragScrollLeft.current - dx;
+  };
+  const onPointerUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
   };
 
   if (loading) return <div className="bg-black h-screen" />;
 
   return (
-    <section
-      className="bg-black py-20 min-h-screen overflow-x-hidden md:overflow-hidden flex flex-col justify-center"
-      onMouseMove={handleMouseMove}
-    >
-      <div className="max-w-7xl mx-auto px-6 md:px-10 mb-14 pointer-events-none">
-        <h2 className="text-5xl md:text-8xl font-black italic uppercase text-white tracking-tighter leading-none">
-          FEATURED <span className="text-fuchsia-600">PROJECTS</span>
-        </h2>
-        <div className="flex items-center gap-3 mt-4">
-          <div className="h-[1px] w-12 bg-fuchsia-600" />
-          <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold">
-            {window.innerWidth < 768 ? "Swipe to explore" : ""}
-          </p>
-        </div>
-      </div>
+    <section className="bg-black py-24">
+      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_rgba(192,38,211,0.03),transparent)] pointer-events-none" />
 
-      <div className="relative w-full overflow-x-auto no-scrollbar md:overflow-visible px-6 md:px-0">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+
+        {/* Header row */}
         <motion.div
-          ref={containerRef}
-          style={{ x: window.innerWidth >= 768 ? smoothX : 0 }}
-          className="flex gap-6 md:gap-8 md:px-[10%] pb-6 md:pb-0"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-6"
         >
-          {projects.map((p) => {
-            const techs = p.techStack?.split(",") || [];
+          <div>
+            <h2 className="text-3xl md:text-5xl font-black italic uppercase text-white tracking-tighter leading-none">
+              FEATURED <span className="text-fuchsia-600">PROJECTS</span>
+            </h2>
+            <div className="flex items-center gap-3 mt-4">
+              <div className="h-[1px] w-12 bg-fuchsia-600" />
+              <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold">Selected Work</p>
+            </div>
+          </div>
 
+          {/* Arrows */}
+          <div className="flex items-center gap-3">
+            <span className="text-zinc-600 text-[11px] uppercase tracking-widest font-bold mr-2 hidden sm:block">
+              {activeIndex + 1} / {projects.length}
+            </span>
+            <button
+              onClick={prev}
+              disabled={activeIndex === 0}
+              className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-fuchsia-600/60 hover:shadow-[0_0_20px_rgba(192,38,211,0.25)] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft />
+            </button>
+            <button
+              onClick={next}
+              disabled={activeIndex >= projects.length - 1}
+              className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-fuchsia-600/60 hover:shadow-[0_0_20px_rgba(192,38,211,0.25)] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed"
+            >
+              <ChevronRight />
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Scroll track — no overflow-hidden, uses native scroll with hidden scrollbar */}
+        <div
+          ref={scrollRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          className="flex gap-8 pb-4 select-none"
+          style={{
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            cursor: "grab",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {projects.map((p, i) => {
+            const techs = p.techStack?.split(",") || [];
             const rawImage = p.images || "";
             const resolvedImageSrc =
               typeof rawImage === "string" && rawImage.startsWith("data:image")
@@ -110,16 +176,18 @@ export default function Projects() {
                     : "/api/placeholder/400/300";
 
             return (
-              <div
+              <motion.div
                 key={p.id}
-                className="relative flex-shrink-0 w-[300px] sm:w-[360px] md:w-[410px] group"
-                onMouseEnter={() => setActiveHoveredId(p.id)}
-                onMouseLeave={() => setActiveHoveredId(null)}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="relative group flex-shrink-0 w-[300px] sm:w-[360px] md:w-[410px]"
+                style={{ scrollSnapAlign: "start" }}
               >
-                <div className="absolute inset-0 rounded-[2.2rem] border border-zinc-900 transition-all duration-500 group-hover:border-fuchsia-600/40 group-hover:shadow-[0_0_40px_rgba(192,38,211,0.12)]" />
+                <div className="absolute inset-0 rounded-[2.2rem] border border-zinc-900 transition-all duration-500 group-hover:border-fuchsia-600/40 group-hover:shadow-[0_0_50px_rgba(192,38,211,0.14)]" />
 
                 <div className="relative bg-[#090909] rounded-[2.15rem] p-6 h-full flex flex-col z-10 border border-white/5">
-                  {/* WRAPPED IMAGE IN ANCHOR TAG LINK TO DIRECT LIVE DEPLOYMENT VIEW */}
                   <a
                     href={p.liveDemo || "#"}
                     target="_blank"
@@ -131,18 +199,15 @@ export default function Projects() {
                       src={resolvedImageSrc}
                       className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
                       alt={p.title}
+                      draggable={false}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
-
-                    {/* CENTERED LIVE VIEW INDICATOR - VISIBLE ONLY ON HOVER */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 bg-black/75 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out">
                       <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
-                      <span className="text-[9px] font-black uppercase text-zinc-300 tracking-widest whitespace-nowrap">
-                        Live Deploy
-                      </span>
+                      <span className="text-[9px] font-black uppercase text-zinc-300 tracking-widest whitespace-nowrap">Live Deploy</span>
                     </div>
                   </a>
 
@@ -152,37 +217,20 @@ export default function Projects() {
                         {p.title}
                       </h3>
                       <div className="flex gap-3">
-                        <a
-                          href={p.github || "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
-                        >
+                        <a href={p.github || "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-600 hover:text-white transition-all transform hover:scale-110">
                           <GithubIcon />
                         </a>
-                        <a
-                          href={p.liveDemo || "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-zinc-600 hover:text-white transition-all transform hover:scale-110"
-                        >
+                        <a href={p.liveDemo || "#"} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-600 hover:text-white transition-all transform hover:scale-110">
                           <ExternalIcon />
                         </a>
                       </div>
                     </div>
 
-                    <p className="text-zinc-500 text-[12px] leading-relaxed mb-6 line-clamp-2">
-                      {p.smallDescription}
-                    </p>
+                    <p className="text-zinc-500 text-[12px] leading-relaxed mb-6 line-clamp-2">{p.smallDescription}</p>
 
                     <div className="flex flex-wrap gap-2 mb-8 mt-auto">
                       {techs.slice(0, 3).map((tech, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest bg-white/5 border border-white/10 px-2.5 py-1 rounded-md"
-                        >
+                        <span key={idx} className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest bg-white/5 border border-white/10 px-2.5 py-1 rounded-md">
                           {tech.trim()}
                         </span>
                       ))}
@@ -198,13 +246,26 @@ export default function Projects() {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </motion.div>
-      </div>
+        </div>
 
-      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_rgba(192,38,211,0.02),transparent)] pointer-events-none" />
+        {/* Dot indicators */}
+        {projects.length > 1 && (
+          <div className="flex justify-center gap-2 mt-8">
+            {projects.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollTo(i)}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  i === activeIndex ? "w-6 bg-fuchsia-600" : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
