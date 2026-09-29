@@ -20,13 +20,31 @@ export default function BannerForm() {
     return unsub;
   }, []);
 
-  const handleFileUpload = (e, field) => {
+  const compressImage = (file, maxWidth = 400, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const scale = Math.min(1, maxWidth / img.width);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileUpload = async (e, field) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () =>
-        setSettings({ ...settings, [field]: reader.result });
-      reader.readAsDataURL(file);
+      const compressed = await compressImage(file);
+      setSettings({ ...settings, [field]: compressed });
     }
   };
 
@@ -37,6 +55,7 @@ export default function BannerForm() {
       alert("System_Updated: Visuals Deployed.");
     } catch (err) {
       console.error(err);
+      alert("Error: " + err.message);
     } finally {
       setLoading(false);
     }
