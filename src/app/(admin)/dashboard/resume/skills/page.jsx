@@ -9,7 +9,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import SkillMatrixForm from "../../../../../components/admin/SkillMatrixForm";
+import SkillMatrixForm from "../../../../../components/admin/techform";
 import { Trash2 } from "lucide-react";
 
 const CATEGORIES = ["Programming Languages", "Frameworks"];

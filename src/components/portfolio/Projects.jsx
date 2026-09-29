@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -32,16 +32,18 @@ const ChevronRight = () => (
   </svg>
 );
 
-export default function Projects() {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Projects({ projects: propProjects, loading: propLoading }) {
+  const [projects, setProjects] = useState(propProjects || []);
+  const [loading, setLoading] = useState(propLoading !== undefined ? propLoading : true);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
-  const isDragging = useRef(false);
-  const dragStartX = useRef(0);
-  const dragScrollLeft = useRef(0);
 
   useEffect(() => {
+    if (propProjects && propProjects.length > 0) {
+      setProjects(propProjects);
+      setLoading(false);
+      return;
+    }
     const fetchProjects = async () => {
       try {
         const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
@@ -54,49 +56,33 @@ export default function Projects() {
       }
     };
     fetchProjects();
-  }, []);
+  }, [propProjects]);
 
-  /* sync dot indicator to scroll position */
+  /* sync active index on scroll */
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
-      const cardWidth = el.firstElementChild?.offsetWidth || 420;
+      const cardWidth = el.firstElementChild?.offsetWidth || 410;
       const gap = 32;
-      const i = Math.round(el.scrollLeft / (cardWidth + gap));
-      setActiveIndex(i);
+      const index = Math.round(el.scrollLeft / (cardWidth + gap));
+      setActiveIndex(Math.max(0, Math.min(projects.length - 1, index)));
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [projects]);
 
-  const scrollTo = (i) => {
+  const scrollTo = (index) => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = el.firstElementChild?.offsetWidth || 420;
+    const cardWidth = el.firstElementChild?.offsetWidth || 410;
     const gap = 32;
-    el.scrollTo({ left: i * (cardWidth + gap), behavior: "smooth" });
+    const targetLeft = index * (cardWidth + gap);
+    el.scrollTo({ left: targetLeft, behavior: "smooth" });
   };
 
   const prev = () => scrollTo(Math.max(0, activeIndex - 1));
   const next = () => scrollTo(Math.min(projects.length - 1, activeIndex + 1));
-
-  /* drag-to-scroll */
-  const onPointerDown = (e) => {
-    isDragging.current = true;
-    dragStartX.current = e.clientX;
-    dragScrollLeft.current = scrollRef.current.scrollLeft;
-    scrollRef.current.style.cursor = "grabbing";
-  };
-  const onPointerMove = (e) => {
-    if (!isDragging.current) return;
-    const dx = e.clientX - dragStartX.current;
-    scrollRef.current.scrollLeft = dragScrollLeft.current - dx;
-  };
-  const onPointerUp = () => {
-    isDragging.current = false;
-    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
-  };
 
   if (loading) return <div className="bg-black h-screen" />;
 
@@ -124,14 +110,15 @@ export default function Projects() {
             </div>
           </div>
 
-          {/* Arrows */}
+          {/* Controls */}
           <div className="flex items-center gap-3">
-            <span className="text-zinc-600 text-[11px] uppercase tracking-widest font-bold mr-2 hidden sm:block">
-              {activeIndex + 1} / {projects.length}
+            <span className="text-zinc-500 text-[11px] uppercase tracking-widest font-bold mr-2 hidden sm:block">
+              {projects.length > 0 ? `${activeIndex + 1} / ${projects.length}` : "0 Projects"}
             </span>
             <button
               onClick={prev}
               disabled={activeIndex === 0}
+              aria-label="Previous project"
               className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-fuchsia-600/60 hover:shadow-[0_0_20px_rgba(192,38,211,0.25)] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed"
             >
               <ChevronLeft />
@@ -139,6 +126,7 @@ export default function Projects() {
             <button
               onClick={next}
               disabled={activeIndex >= projects.length - 1}
+              aria-label="Next project"
               className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-fuchsia-600/60 hover:shadow-[0_0_20px_rgba(192,38,211,0.25)] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed"
             >
               <ChevronRight />
@@ -146,18 +134,12 @@ export default function Projects() {
           </div>
         </motion.div>
 
-        {/* Scroll track — no overflow-hidden, uses native scroll with hidden scrollbar */}
+        {/* Horizontal Track — Fixed single row layout */}
         <div
           ref={scrollRef}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
-          className="flex gap-8 pb-4 select-none"
+          className="flex gap-8 pb-4 overflow-x-auto scroll-smooth scrollbar-none select-none"
           style={{
-            overflowX: "auto",
             scrollSnapType: "x mandatory",
-            cursor: "grab",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             WebkitOverflowScrolling: "touch",
@@ -180,8 +162,14 @@ export default function Projects() {
                 key={p.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -6 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.5,
+                  delay: i * 0.05,
+                  ease: [0.22, 1, 0.36, 1],
+                  y: { duration: 0.25 }
+                }}
                 className="relative group flex-shrink-0 w-[300px] sm:w-[360px] md:w-[410px]"
                 style={{ scrollSnapAlign: "start" }}
               >
@@ -251,15 +239,16 @@ export default function Projects() {
           })}
         </div>
 
-        {/* Dot indicators */}
+        {/* Dynamic Dot Indicators */}
         {projects.length > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center items-center gap-2 mt-8">
             {projects.map((_, i) => (
               <button
                 key={i}
                 onClick={() => scrollTo(i)}
-                className={`h-1 rounded-full transition-all duration-300 ${
-                  i === activeIndex ? "w-6 bg-fuchsia-600" : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
+                aria-label={`Go to slide ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === activeIndex ? "w-7 bg-fuchsia-600" : "w-2 bg-zinc-800 hover:bg-zinc-600"
                 }`}
               />
             ))}
